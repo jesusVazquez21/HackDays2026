@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { useState, useRef, useEffect } from 'react';
 import { Mic, MicOff, Send, Sparkles, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -52,6 +53,43 @@ export function VoiceInput({ onDataExtracted }: VoiceInputProps) {
   });
 
   const activeGeminiKey = import.meta.env.VITE_GEMINI_API_KEY || tempGeminiKey;
+  const activeMapsKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || sessionStorage.getItem('temp_google_maps_api_key');
+
+  const geocodeAddress = async (data: ExtractedData): Promise<ExtractedData> => {
+    if (!data.direccion) return data;
+    
+    // 1. Intentar con Google Maps Geocoding si hay API Key (mucho más preciso)
+    if (activeMapsKey) {
+      try {
+        const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(data.direccion + ', Durango, Mexico')}&key=${activeMapsKey}`);
+        const result = await response.json();
+        if (result.status === 'OK' && result.results.length > 0) {
+          return { ...data, latitud: result.results[0].geometry.location.lat, longitud: result.results[0].geometry.location.lng };
+        }
+      } catch (e) {
+        console.error('Error con Google Geocoding:', e);
+      }
+    }
+
+    // 2. Fallback a ArcGIS World Geocoding (Gratuito, sin bloqueo CORS y muy preciso en México)
+    try {
+      const cleanAddress = data.direccion.replace(/\b(Sur|Norte|Oriente|Poniente)\b/gi, '').trim();
+      const query = encodeURIComponent(`${cleanAddress}, Durango, Mexico`);
+      
+      const response = await fetch(`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&singleLine=${query}&maxLocations=1`);
+      const result = await response.json();
+      
+      if (result && result.candidates && result.candidates.length > 0) {
+        const bestMatch = result.candidates[0];
+        return { ...data, latitud: bestMatch.location.y, longitud: bestMatch.location.x };
+      }
+    } catch (e) {
+      console.error('Error con ArcGIS Geocoding:', e);
+    }
+    
+    // 3. Fallback final matemático / Gemini
+    return data;
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -148,14 +186,15 @@ Debes responder SIEMPRE con un objeto JSON válido con el siguiente formato estr
     "tags_sugeridos": ["tags", "cortos", "en", "minúsculas", "relacionados"],
     "informacion_faltante": ["campo1", "campo2"], // Listar qué campos críticos de esta lista AÚN FALTAN: 'nombre_negocio', 'categoria_id', 'direccion', 'horario'
     "preguntas_sugeridas": ["¿Cómo se llama tu negocio?", "¿Cuál es el giro principal?", "¿En qué calle se ubica?", "¿Cuál es el horario?"], // Preguntas para lo que falte
-    "latitud": 24.027729, // Estima latitud en Durango Centro (entre 24.015 y 24.040) basándote en la calle o usa 24.027729 por defecto
-    "longitud": -104.653027 // Estima longitud en Durango Centro (entre -104.640 y -104.670) basándote en la calle o usa -104.653027 por defecto
+    "latitud": 24.0245, // DEBES calcular las coordenadas GPS REALES de la dirección extraída en Durango usando tus conocimientos geográficos.
+    "longitud": -104.6532 // Si no conoces la calle exacta, aproxima la latitud/longitud al área correcta. Nunca uses valores fijos.
   }
 }
 
 Notas importantes sobre geolocalización en Durango:
-- Si mencionan calles populares (Juárez, Constitución, 20 de Noviembre, 5 de Febrero, Negrete, Aquiles Serdán, Hidalgo), ubícalas con coordenadas cercanas al Centro Histórico.
-- Si no mencionan coordenadas o calles específicas, mantén el centro de Durango (24.027729, -104.653027) con pequeñas desviaciones aleatorias para que no se empalmen.
+- Usa tu conocimiento del mapa de Durango para calcular latitud y longitud exactas.
+- Ejemplos: Constitución (24.025, -104.653), 20 de Noviembre (24.027, -104.655), Las Alamedas (24.029, -104.659).
+- Varía siempre los decimales para reflejar la cuadra exacta.
 
 Analiza el historial de chat provisto y la última declaración del usuario para rellenar de manera acumulativa el objeto "extractedData".
 `
@@ -240,7 +279,8 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
 
     // Description & coordinates
     updated.descripcion = `Comercio local registrado. ${userMessage}`;
-    updated.tags_sugeridos = [updated.giro?.toLowerCase() || 'comercio_local'];
+    const categoryTags: Record<number, string> = { 11: 'antojitos', 12: 'mezcalería', 13: 'artesanías', 14: 'abarrotes' };
+    updated.tags_sugeridos = [updated.categoria_id ? categoryTags[updated.categoria_id] : 'comercio_local'];
     
     // Recalculate missing information
     updated.informacion_faltante = [];
@@ -295,8 +335,9 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
 
         // If no critical information is missing, proceed to confirmation step
         if (result.data.informacion_faltante.length === 0) {
-          setTimeout(() => {
-            onDataExtracted(result.data);
+          setTimeout(async () => {
+            const finalData = await geocodeAddress(result.data);
+            onDataExtracted(finalData);
           }, 3000);
         }
       } else {
@@ -312,7 +353,10 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
               content: '¡Perfecto! He extraído toda la información del negocio correctamente. Redirigiendo para confirmar...'
             }
           ]);
-          setTimeout(() => onDataExtracted(updatedData), 2000);
+          setTimeout(async () => {
+            const finalData = await geocodeAddress(updatedData);
+            onDataExtracted(finalData);
+          }, 2000);
         } else {
           const followUpQuestion = updatedData.preguntas_sugeridas[0] || '¿Podrías darme más detalles?';
           setMessages((prev) => [
@@ -347,7 +391,10 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
       tags_sugeridos: extractedData.tags_sugeridos.length > 0 ? extractedData.tags_sugeridos : ['comercio_local'],
       informacion_faltante: []
     };
-    onDataExtracted(finishedData);
+    
+    geocodeAddress(finishedData).then(finalData => {
+      onDataExtracted(finalData);
+    });
   };
 
   return (

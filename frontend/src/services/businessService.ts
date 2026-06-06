@@ -15,55 +15,7 @@ export interface Business {
 }
 
 // Initial mock businesses in Durango, Mexico.
-export const MOCK_BUSINESSES: Business[] = [
-  {
-    id: 'mock-1',
-    categoria_id: 14,
-    nombre_negocio: 'La Esquina',
-    direccion: 'Calle Juárez 204, Centro Histórico, Durango',
-    horario: '08:00 - 21:00',
-    telefono: '618-123-4567',
-    tags: ['abarrotes', 'frutas'],
-    latitud: 24.027729,
-    longitud: -104.653027,
-    descripcion: 'Tienda de abarrotes tradicional con frutas y verduras frescas del día.'
-  },
-  {
-    id: 'mock-2',
-    categoria_id: 12,
-    nombre_negocio: 'El Alambique',
-    direccion: 'Calle Constitución 112, Centro Histórico, Durango',
-    horario: '14:00 - 23:00',
-    tags: ['mezcal', 'bebidas'],
-    latitud: 24.028500,
-    longitud: -104.654000,
-    descripcion: 'Mezcalería artesanal donde degustar el mejor mezcal de Durango en un gran ambiente.'
-  },
-  {
-    id: 'mock-3',
-    categoria_id: 11,
-    nombre_negocio: 'Antojitos Doña María',
-    direccion: 'Av. 20 de Noviembre 156, Durango',
-    horario: '07:00 - 15:00',
-    telefono: '618-987-6543',
-    tags: ['antojitos', 'comida_corrida'],
-    latitud: 24.026000,
-    longitud: -104.655000,
-    descripcion: 'Gorditas de harina hechas a mano y antojitos tradicionales duranguenses con guisados caseros.'
-  },
-  {
-    id: 'mock-4',
-    categoria_id: 13,
-    nombre_negocio: 'Artesanías Tierra Alacrán',
-    direccion: 'Calle 5 de Febrero 302, Durango',
-    horario: '09:00 - 19:30',
-    telefono: '618-456-7890',
-    tags: ['artesanías', 'souvenirs'],
-    latitud: 24.027200,
-    longitud: -104.651500,
-    descripcion: 'Recuerdos típicos, llaveros y artículos decorativos con alacranes encapsulados y cuero.'
-  }
-];
+export const MOCK_BUSINESSES: Business[] = [];
 
 const LOCAL_STORAGE_KEY = 'durango_local_businesses';
 
@@ -170,7 +122,7 @@ export async function saveBusiness(business: Omit<Business, 'id'>): Promise<Busi
         savedInCloud = true;
         // Update newBusiness with the cloud generated ID
         newBusiness.id = data[0].id;
-        newBusiness.created_at = data[0].created_at;
+        
       }
     } catch (e) {
       console.error('Supabase connection error during save:', e);
