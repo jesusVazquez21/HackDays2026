@@ -37,9 +37,9 @@ export function ConfirmationStep({ data, onConfirm, onEdit }: ConfirmationStepPr
             <p className="text-lg font-semibold">
               {data.direccion || 'Sin dirección'}
             </p>
-            {data.latitude && data.longitude && (
+            {data.latitud && data.longitud && (
               <p className="text-sm opacity-90 mt-2">
-                {data.latitude.toFixed(6)}, {data.longitude.toFixed(6)}
+                {data.latitud.toFixed(6)}, {data.longitud.toFixed(6)}
               </p>
             )}
           </div>
@@ -68,8 +68,13 @@ export function ConfirmationStep({ data, onConfirm, onEdit }: ConfirmationStepPr
             icon={<Tag className="size-5" />}
           />
           <InfoField
-            label="Giro Comercial"
-            value={data.giro}
+            label="Categoría"
+            value={
+              data.categoria_id === 11 ? 'Antojitos' :
+              data.categoria_id === 12 ? 'Mezcalerías' :
+              data.categoria_id === 13 ? 'Artesanías' :
+              data.categoria_id === 14 ? 'Abarrotes' : 'Desconocido'
+            }
             icon={<Tag className="size-5" />}
           />
           <InfoField

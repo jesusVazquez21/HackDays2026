@@ -1,71 +1,66 @@
 import { supabase } from '../config/supabaseClient';
 
 export interface Business {
-  id: string;
-  nombre: string;
-  giro: string;
+  id?: string | number;
+  categoria_id?: number | null;
+  nombre_negocio: string;
+  nombre_dueno?: string | null;
   direccion: string;
-  horario: string;
-  telefono?: string;
-  rating: number;
-  tags: string[];
-  latitude: number;
-  longitude: number;
-  descripcion?: string;
-  created_at?: string;
+  horario?: string | null;
+  descripcion?: string | null;
+  telefono?: string | null;
+  latitud?: number | null;
+  longitud?: number | null;
+  tags?: string[] | null;
 }
 
 // Initial mock businesses in Durango, Mexico.
 export const MOCK_BUSINESSES: Business[] = [
   {
     id: 'mock-1',
-    nombre: 'La Esquina',
-    giro: 'Tienda de abarrotes',
+    categoria_id: 14,
+    nombre_negocio: 'La Esquina',
     direccion: 'Calle Juárez 204, Centro Histórico, Durango',
     horario: '08:00 - 21:00',
     telefono: '618-123-4567',
-    rating: 4.5,
     tags: ['abarrotes', 'frutas'],
-    latitude: 24.027729,
-    longitude: -104.653027,
+    latitud: 24.027729,
+    longitud: -104.653027,
     descripcion: 'Tienda de abarrotes tradicional con frutas y verduras frescas del día.'
   },
   {
     id: 'mock-2',
-    nombre: 'El Alambique',
-    giro: 'Mezcalería',
+    categoria_id: 12,
+    nombre_negocio: 'El Alambique',
     direccion: 'Calle Constitución 112, Centro Histórico, Durango',
     horario: '14:00 - 23:00',
-    rating: 4.8,
     tags: ['mezcal', 'bebidas'],
-    latitude: 24.028500,
-    longitude: -104.654000,
+    latitud: 24.028500,
+    longitud: -104.654000,
     descripcion: 'Mezcalería artesanal donde degustar el mejor mezcal de Durango en un gran ambiente.'
   },
   {
     id: 'mock-3',
-    nombre: 'Antojitos Doña María',
-    giro: 'Comida tradicional',
+    categoria_id: 11,
+    nombre_negocio: 'Antojitos Doña María',
     direccion: 'Av. 20 de Noviembre 156, Durango',
     horario: '07:00 - 15:00',
     telefono: '618-987-6543',
-    rating: 4.9,
     tags: ['antojitos', 'comida_corrida'],
-    latitude: 24.026000,
-    longitude: -104.655000,
+    latitud: 24.026000,
+    longitud: -104.655000,
     descripcion: 'Gorditas de harina hechas a mano y antojitos tradicionales duranguenses con guisados caseros.'
   },
   {
     id: 'mock-4',
-    nombre: 'Artesanías Tierra Alacrán',
-    giro: 'Artesanías',
+    categoria_id: 13,
+    nombre_negocio: 'Artesanías Tierra Alacrán',
     direccion: 'Calle 5 de Febrero 302, Durango',
     horario: '09:00 - 19:30',
     telefono: '618-456-7890',
-    rating: 4.7,
     tags: ['artesanías', 'souvenirs'],
-    latitude: 24.027200,
-    longitude: -104.651500,
+    latitud: 24.027200,
+    longitud: -104.651500,
     descripcion: 'Recuerdos típicos, llaveros y artículos decorativos con alacranes encapsulados y cuero.'
   }
 ];
@@ -84,9 +79,9 @@ export async function getBusinesses(): Promise<Business[]> {
   if (supabase) {
     try {
       const { data, error } = await supabase
-        .from('negocios')
+        .from('comercios')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('id', { ascending: false });
 
       if (error) {
         console.error('Error fetching businesses from Supabase:', error);
@@ -94,17 +89,16 @@ export async function getBusinesses(): Promise<Business[]> {
         // Map Supabase fields to our Business model structure
         supabaseBusinesses = data.map((b: any) => ({
           id: b.id,
-          nombre: b.nombre,
-          giro: b.giro,
+          categoria_id: b.categoria_id,
+          nombre_negocio: b.nombre_negocio,
+          nombre_dueno: b.nombre_dueno,
           direccion: b.direccion,
           horario: b.horario,
           telefono: b.telefono || undefined,
-          rating: b.rating || 4.5,
           tags: b.tags || [],
-          latitude: Number(b.latitude),
-          longitude: Number(b.longitude),
-          descripcion: b.descripcion || undefined,
-          created_at: b.created_at
+          latitud: Number(b.latitud),
+          longitud: Number(b.longitud),
+          descripcion: b.descripcion || undefined
         }));
       }
     } catch (e) {
@@ -130,7 +124,7 @@ export async function getBusinesses(): Promise<Business[]> {
   // Deduplicate by name + address to avoid double entries
   const seen = new Set<string>();
   return combined.filter(b => {
-    const key = `${b.nombre.toLowerCase().trim()}|${b.direccion.toLowerCase().trim()}`;
+    const key = `${b.nombre_negocio?.toLowerCase().trim()}|${b.direccion?.toLowerCase().trim()}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -142,34 +136,33 @@ export async function getBusinesses(): Promise<Business[]> {
  * 1. Inserts into Supabase database (if configured)
  * 2. Saves to localStorage as backup/local registry
  */
-export async function saveBusiness(business: Omit<Business, 'id' | 'rating'>): Promise<Business> {
+export async function saveBusiness(business: Omit<Business, 'id'>): Promise<Business> {
+  let savedInCloud = false;
   const newBusiness: Business = {
     ...business,
-    id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'local-' + Date.now(),
-    rating: 4.5 + Math.random() * 0.5 // Random initial rating between 4.5 and 5.0
+    id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'local-' + Date.now()
   };
 
-  // 1. Try to save to Supabase
-  let savedInCloud = false;
   if (supabase) {
     try {
-      const dbPayload = {
-        nombre: newBusiness.nombre,
-        giro: newBusiness.giro,
-        direccion: newBusiness.direccion,
-        horario: newBusiness.horario,
-        telefono: newBusiness.telefono || null,
-        rating: newBusiness.rating,
-        tags: newBusiness.tags,
-        latitude: newBusiness.latitude,
-        longitude: newBusiness.longitude,
-        descripcion: newBusiness.descripcion || null
-      };
-
       const { data, error } = await supabase
-        .from('negocios')
-        .insert([dbPayload])
-        .select();
+        .from('comercios')
+        .insert([
+          {
+            categoria_id: newBusiness.categoria_id,
+            nombre_negocio: newBusiness.nombre_negocio,
+            nombre_dueno: newBusiness.nombre_dueno,
+            direccion: newBusiness.direccion,
+            horario: newBusiness.horario,
+            descripcion: newBusiness.descripcion,
+            telefono: newBusiness.telefono,
+            latitud: newBusiness.latitud,
+            longitud: newBusiness.longitud,
+            tags: newBusiness.tags
+          }
+        ])
+        .select()
+        .single();
 
       if (error) {
         console.error('Error saving to Supabase:', error.message);
@@ -191,7 +184,7 @@ export async function saveBusiness(business: Omit<Business, 'id' | 'rating'>): P
     
     // Check if it already exists locally
     const exists = localList.some(
-      b => b.nombre.toLowerCase() === newBusiness.nombre.toLowerCase() && 
+      b => b.nombre_negocio.toLowerCase() === newBusiness.nombre_negocio.toLowerCase() && 
            b.direccion.toLowerCase() === newBusiness.direccion.toLowerCase()
     );
     

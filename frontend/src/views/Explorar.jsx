@@ -43,10 +43,20 @@ export default function Explorar({ onBack }) {
     loadData();
   }, []);
 
+  const getCategoriaName = (id) => {
+    switch(id) {
+      case 11: return 'Antojitos';
+      case 12: return 'Mezcal';
+      case 13: return 'Artesanías';
+      case 14: return 'Abarrotes';
+      default: return 'Desconocido';
+    }
+  };
+
   const filteredBusinesses = selectedCategory === 'Todos'
     ? businesses
     : businesses.filter(b =>
-        b.giro?.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+        getCategoriaName(b.categoria_id).toLowerCase().includes(selectedCategory.toLowerCase()) ||
         b.tags?.some(tag => tag.toLowerCase().includes(selectedCategory.toLowerCase()))
       );
 
@@ -102,27 +112,27 @@ export default function Explorar({ onBack }) {
             <APIProvider apiKey={activeApiKey}>
               <Map
                 defaultZoom={selectedBusiness ? 16 : 14}
-                defaultCenter={selectedBusiness ? { lat: selectedBusiness.latitude, lng: selectedBusiness.longitude } : durangoCenter}
+                defaultCenter={selectedBusiness ? { lat: selectedBusiness.latitud, lng: selectedBusiness.longitud } : durangoCenter}
                 gestureHandling={'greedy'}
                 disableDefaultUI={false}
               >
                 {filteredBusinesses.map((business) => (
                   <Marker
                     key={business.id}
-                    position={{ lat: business.latitude, lng: business.longitude }}
+                    position={{ lat: business.latitud, lng: business.longitud }}
                     onClick={() => handleMarkerClick(business)}
-                    title={business.nombre}
+                    title={business.nombre_negocio}
                   />
                 ))}
 
                 {selectedBusiness && (
                   <InfoWindow
-                    position={{ lat: selectedBusiness.latitude, lng: selectedBusiness.longitude }}
+                    position={{ lat: selectedBusiness.latitud, lng: selectedBusiness.longitud }}
                     onCloseClick={() => setSelectedBusiness(null)}
                   >
                     <div className="p-2 max-w-[200px] text-gray-900">
-                      <h4 className="font-bold text-sm">{selectedBusiness.nombre}</h4>
-                      <p className="text-xs text-gray-600">{selectedBusiness.giro}</p>
+                      <h4 className="font-bold text-sm">{selectedBusiness.nombre_negocio}</h4>
+                      <p className="text-xs text-gray-600">{getCategoriaName(selectedBusiness.categoria_id)}</p>
                       <p className="text-xs mt-1 text-purple-600 font-semibold">{selectedBusiness.horario}</p>
                     </div>
                   </InfoWindow>
@@ -142,8 +152,8 @@ export default function Explorar({ onBack }) {
               </div>
 
               {filteredBusinesses.map((business) => {
-                const scaleX = (business.longitude - durangoCenter.lng) * 4000;
-                const scaleY = (business.latitude - durangoCenter.lat) * 4000;
+                const scaleX = (business.longitud - durangoCenter.lng) * 4000;
+                const scaleY = (business.latitud - durangoCenter.lat) * 4000;
                 const styleLeft = `calc(50% + ${scaleX}px)`;
                 const styleTop = `calc(50% - ${scaleY}px)`;
 
@@ -240,8 +250,8 @@ export default function Explorar({ onBack }) {
                 >
                   <div className="space-y-3">
                     <div>
-                      <h4 className="font-bold text-gray-900">{business.nombre}</h4>
-                      <p className="text-xs text-purple-600 font-semibold">{business.giro}</p>
+                      <h4 className="font-bold text-gray-900">{business.nombre_negocio}</h4>
+                      <p className="text-xs text-purple-600 font-semibold">{getCategoriaName(business.categoria_id)}</p>
                     </div>
 
                     <div className="flex items-center gap-1">
@@ -296,9 +306,9 @@ export default function Explorar({ onBack }) {
             <div className="flex justify-between items-start">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">
-                  {selectedBusiness.nombre}
+                  {selectedBusiness.nombre_negocio}
                 </h2>
-                <p className="text-purple-600 font-semibold mt-1">{selectedBusiness.giro}</p>
+                <p className="text-purple-600 font-semibold mt-1">{getCategoriaName(selectedBusiness.categoria_id)}</p>
               </div>
               <button
                 onClick={() => setSelectedBusiness(null)}
@@ -362,7 +372,7 @@ export default function Explorar({ onBack }) {
             </div>
 
             <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${selectedBusiness.latitude},${selectedBusiness.longitude}`}
+              href={`https://www.google.com/maps/dir/?api=1&destination=${selectedBusiness.latitud},${selectedBusiness.longitud}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-700 hover:to-orange-700 text-white font-semibold py-4 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg"

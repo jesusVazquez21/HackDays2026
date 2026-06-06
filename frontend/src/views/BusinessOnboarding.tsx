@@ -11,7 +11,7 @@ interface BusinessOnboardingProps {
 export interface ExtractedData {
   nombre_negocio: string | null;
   nombre_dueno: string | null;
-  giro: string | null;
+  categoria_id: number | null;
   direccion: string | null;
   direccion_completa: boolean;
   telefono: string | null;
@@ -25,8 +25,8 @@ export interface ExtractedData {
   tags_sugeridos: string[];
   informacion_faltante: string[];
   preguntas_sugeridas: string[];
-  latitude?: number;
-  longitude?: number;
+  latitud?: number;
+  longitud?: number;
 }
 
 export function BusinessOnboarding({ onBack }: BusinessOnboardingProps) {
@@ -44,14 +44,15 @@ export function BusinessOnboarding({ onBack }: BusinessOnboardingProps) {
     try {
       // Map ExtractedData fields to Business fields
       const businessPayload = {
-        nombre: extractedData.nombre_negocio || 'Negocio sin nombre',
-        giro: extractedData.giro || 'Comercio Local',
+        nombre_negocio: extractedData.nombre_negocio || 'Negocio sin nombre',
+        nombre_dueno: extractedData.nombre_dueno || null,
+        categoria_id: extractedData.categoria_id || 14, // Default abarrotes
         direccion: extractedData.direccion || 'Durango, Dgo.',
         horario: `${extractedData.horario.apertura || '08:00'} - ${extractedData.horario.cierre || '18:00'}`,
         telefono: extractedData.telefono || undefined,
         tags: extractedData.tags_sugeridos || [],
-        latitude: extractedData.latitude || 24.027729,
-        longitude: extractedData.longitude || -104.653027,
+        latitud: extractedData.latitud || 24.027729,
+        longitud: extractedData.longitud || -104.653027,
         descripcion: extractedData.descripcion || undefined
       };
 

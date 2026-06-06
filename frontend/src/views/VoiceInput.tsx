@@ -28,9 +28,9 @@ export function VoiceInput({ onDataExtracted }: VoiceInputProps) {
 
   // Keep track of the accumulated extracted business data
   const [extractedData, setExtractedData] = useState<ExtractedData>({
+    categoria_id: null,
     nombre_negocio: null,
     nombre_dueno: null,
-    giro: null,
     direccion: null,
     direccion_completa: false,
     telefono: null,
@@ -42,7 +42,7 @@ export function VoiceInput({ onDataExtracted }: VoiceInputProps) {
     },
     descripcion: null,
     tags_sugeridos: [],
-    informacion_faltante: ['nombre_negocio', 'giro', 'direccion'],
+    informacion_faltante: ['nombre_negocio', 'categoria_id', 'direccion'],
     preguntas_sugeridas: ['¿Cómo se llama tu negocio?', '¿Qué tipo de negocio es?', '¿Cuál es su dirección?']
   });
 
@@ -119,8 +119,14 @@ export function VoiceInput({ onDataExtracted }: VoiceInputProps) {
         temperature: 0.2,
       },
       systemInstruction: `
-Eres un asistente de inteligencia artificial experto de Durango, México, encargado de registrar comercios locales tradicionales para el Hackathon Durango 2026.
+Eres un asistente de inteligencia artificial experto de Durango, México, encargado de registrar pequeños comercios locales para el Hackathon Durango 2026.
 Tu objetivo es interactuar amablemente en español con el usuario (usando modismos de Durango/México de forma sutil y cálida) para recopilar los datos de su negocio.
+
+Categorías maestras disponibles para asignar el "categoria_id":
+11 = Antojitos (gorditas, comida rápida local, garnachas)
+12 = Mezcalerías (ventas de mezcal, cantinas pequeñas)
+13 = Artesanías (recuerdos, productos locales, ropa típica)
+14 = Abarrotes (tienditas de la esquina, misceláneas, fruterías)
 
 Debes responder SIEMPRE con un objeto JSON válido con el siguiente formato estricto:
 {
@@ -128,7 +134,7 @@ Debes responder SIEMPRE con un objeto JSON válido con el siguiente formato estr
   "extractedData": {
     "nombre_negocio": "Nombre del negocio comercial (ej. 'La Esquina', 'El Alambique') o null si no se conoce",
     "nombre_dueno": "Nombre del dueño o comerciante o null si no se conoce",
-    "giro": "Categoría o giro comercial. Prefiere: 'Tienda de abarrotes', 'Mezcalería', 'Comida tradicional', 'Artesanías' u otros apropiados, o null si no se conoce",
+    "categoria_id": Número del 11 al 14 basado en las categorías maestras, o null si no se conoce,
     "direccion": "Dirección completa en Durango (calle, número, colonia, etc.) o null si no se conoce",
     "direccion_completa": false, // true si tiene calle, número y opcionalmente colonia, false si está incompleta
     "telefono": "Teléfono de 10 dígitos o null",
@@ -140,10 +146,10 @@ Debes responder SIEMPRE con un objeto JSON válido con el siguiente formato estr
     },
     "descripcion": "Una breve descripción comercial redactada por ti de forma atractiva basada en lo que contó el usuario, o null",
     "tags_sugeridos": ["tags", "cortos", "en", "minúsculas", "relacionados"],
-    "informacion_faltante": ["campo1", "campo2"], // Listar qué campos críticos de esta lista AÚN FALTAN: 'nombre_negocio', 'giro', 'direccion', 'horario'
-    "preguntas_sugeridas": ["¿Cómo se llama tu negocio?", "¿Cuál es el giro?", "¿En qué calle se ubica?", "¿Cuál es el horario?"], // Preguntas para lo que falte
-    "latitude": 24.027729, // Estima latitud en Durango Centro (entre 24.015 y 24.040) basándote en la calle o usa 24.027729 por defecto
-    "longitude": -104.653027 // Estima longitud en Durango Centro (entre -104.640 y -104.670) basándote en la calle o usa -104.653027 por defecto
+    "informacion_faltante": ["campo1", "campo2"], // Listar qué campos críticos de esta lista AÚN FALTAN: 'nombre_negocio', 'categoria_id', 'direccion', 'horario'
+    "preguntas_sugeridas": ["¿Cómo se llama tu negocio?", "¿Cuál es el giro principal?", "¿En qué calle se ubica?", "¿Cuál es el horario?"], // Preguntas para lo que falte
+    "latitud": 24.027729, // Estima latitud en Durango Centro (entre 24.015 y 24.040) basándote en la calle o usa 24.027729 por defecto
+    "longitud": -104.653027 // Estima longitud en Durango Centro (entre -104.640 y -104.670) basándote en la calle o usa -104.653027 por defecto
   }
 }
 
@@ -198,14 +204,16 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
     const ownerMatch = userMessage.match(/(?:soy|me llamo|mi nombre es)\s+([A-ZÁ-Ú][a-zá-ú]+)/i);
     if (ownerMatch) updated.nombre_dueno = ownerMatch[1];
 
-    // Match giro
-    const types = ['tiendita', 'abarrotes', 'mezcalería', 'restaurante', 'taller', 'artesanías', 'comida'];
-    for (const type of types) {
-      if (userMessage.toLowerCase().includes(type)) {
-        updated.giro = type === 'comida' ? 'Comida tradicional' : type.charAt(0).toUpperCase() + type.slice(1);
-        break;
-      }
-    }
+    // Match giro (now categoria_id fallback)
+    const tipos_antojitos = ['antojito', 'comida', 'gordita', 'tacos'];
+    const tipos_mezcal = ['mezcal', 'cantina'];
+    const tipos_artesanias = ['artesanía', 'recuerdo', 'ropa'];
+    const tipos_abarrotes = ['abarrotes', 'tiendita', 'miscelánea'];
+    
+    if (tipos_antojitos.some(t => userMessage.toLowerCase().includes(t))) updated.categoria_id = 11;
+    else if (tipos_mezcal.some(t => userMessage.toLowerCase().includes(t))) updated.categoria_id = 12;
+    else if (tipos_artesanias.some(t => userMessage.toLowerCase().includes(t))) updated.categoria_id = 13;
+    else if (tipos_abarrotes.some(t => userMessage.toLowerCase().includes(t))) updated.categoria_id = 14;
 
     // Match address
     const addressMatch = userMessage.match(/(?:en|calle|ubicado en)\s+(?:la\s+)?([A-ZÁ-Ú0-9][a-zá-ú0-9\s]+#?\d*)/i);
@@ -242,9 +250,9 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
       updated.informacion_faltante.push('nombre_negocio');
       updated.preguntas_sugeridas.push('¿Cómo se llama tu negocio?');
     }
-    if (!updated.giro) {
-      updated.informacion_faltante.push('giro');
-      updated.preguntas_sugeridas.push('¿Cuál es el giro o categoría de tu negocio?');
+    if (!updated.categoria_id) {
+      updated.informacion_faltante.push('categoria_id');
+      updated.preguntas_sugeridas.push('¿Cuál es el tipo de negocio principal (ej. antojitos, abarrotes, artesanías, etc)?');
     }
     if (!updated.direccion) {
       updated.informacion_faltante.push('direccion');
@@ -257,8 +265,8 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
 
     // Set coordinates relative to Durango center
     const indexOffset = Math.random() * 0.01 - 0.005;
-    updated.latitude = 24.027729 + indexOffset;
-    updated.longitude = -104.653027 + indexOffset;
+    updated.latitud = 24.027729 + indexOffset;
+    updated.longitud = -104.653027 + indexOffset;
 
     return updated;
   };
@@ -332,10 +340,10 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
     const finishedData: ExtractedData = {
       ...extractedData,
       nombre_negocio: extractedData.nombre_negocio || 'Negocio sin nombre',
-      giro: extractedData.giro || 'Comercio Local',
+      categoria_id: extractedData.categoria_id || 14, // Default a abarrotes
       direccion: extractedData.direccion || 'Durango Centro, Dgo.',
-      latitude: extractedData.latitude || 24.027729,
-      longitude: extractedData.longitude || -104.653027,
+      latitud: extractedData.latitud || 24.027729,
+      longitud: extractedData.longitud || -104.653027,
       tags_sugeridos: extractedData.tags_sugeridos.length > 0 ? extractedData.tags_sugeridos : ['comercio_local'],
       informacion_faltante: []
     };
@@ -439,7 +447,7 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
           <span className="font-semibold">Campos extraídos:</span>{' '}
           {[
             extractedData.nombre_negocio && 'Nombre',
-            extractedData.giro && 'Giro',
+            extractedData.categoria_id && 'Categoría',
             extractedData.direccion && 'Dirección',
             extractedData.horario.apertura && 'Horario'
           ].filter(Boolean).join(', ') || 'Ninguno aún'}
