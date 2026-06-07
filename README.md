@@ -60,8 +60,6 @@ Para ejecutar la aplicación localmente, crea un archivo `.env` en la raíz del 
 # ==========================================
 # Variables del Cliente Frontend (Vite/React)
 # ==========================================
-VITE_SUPABASE_URL=https://tu_proyecto.supabase.co
-VITE_SUPABASE_ANON_KEY=tu_anon_key_de_supabase
+VITE_SUPABASE_URL=[https://tu_proyecto.supabase.co](https://donhkhunqfhfhorqwtpj.supabase.co)
+VITE_SUPABASE_ANON_KEY=yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvbmhraHVucWZoZmhvcnF3dHBqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDc1OTA5OSwiZXhwIjoyMDk2MzM1MDk5fQ.Lg9KFTP53DGIrrB-V82kp7GEC7HRn_whUGshkpU0pCE
 
-# (Añadir aquí las variables del backend/API según se configure)
-# GEMINI_API_KEY=tu_api_key_de_google_ai_studio
