@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Mic, CheckCircle, Store } from 'lucide-react';
 import { VoiceInput } from './VoiceInput';
 import { ConfirmationStep } from './ConfirmationStep';
 import { saveBusiness } from '../services/businessService';
@@ -72,19 +72,48 @@ export function BusinessOnboarding({ onBack }: BusinessOnboardingProps) {
   return (
     <div className="size-full flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button
-            onClick={onBack}
-            className="size-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-          >
-            <ArrowLeft className="size-5 text-gray-600" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Registro de Negocio</h1>
-            <p className="text-sm text-gray-500">
-              {step === 'input' ? 'Cuéntanos sobre tu negocio' : 'Confirma la información'}
+      <div className="bg-[#1e2530]/95 backdrop-blur border-b border-white/10 px-6 py-6 z-10 shrink-0 relative">
+        <button
+          onClick={onBack}
+          className="absolute left-6 top-6 size-10 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors"
+        >
+          <ArrowLeft className="size-5 text-slate-400" />
+        </button>
+        
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-white">Registrar Negocio</h1>
+            <p className="text-sm text-slate-400 mt-1">
+              {step === 'input' ? 'Cuéntanos sobre tu negocio' : 'Revisa y confirma la información'}
             </p>
+          </div>
+
+          {/* Stepper */}
+          <div className="flex items-center justify-center max-w-xl mx-auto">
+            <div className={`flex items-center gap-2 ${step === 'input' ? 'text-white' : 'text-slate-400'}`}>
+              <div className={`size-6 rounded-full flex items-center justify-center text-xs font-bold ${step === 'input' ? 'bg-white text-slate-900' : 'bg-slate-700 text-slate-300'}`}>
+                <Mic className="size-3.5" />
+              </div>
+              <span className="text-xs font-medium">Cuéntanos</span>
+            </div>
+            
+            <div className="flex-1 h-px bg-white/10 mx-4"></div>
+            
+            <div className={`flex items-center gap-2 ${step === 'confirm' ? 'text-white' : 'text-slate-500'}`}>
+              <div className={`size-6 rounded-full flex items-center justify-center text-xs font-bold ${step === 'confirm' ? 'bg-white text-slate-900' : 'border border-slate-600'}`}>
+                <CheckCircle className="size-3.5" />
+              </div>
+              <span className="text-xs font-medium">Confirmar</span>
+            </div>
+            
+            <div className="flex-1 h-px bg-white/10 mx-4"></div>
+            
+            <div className="flex items-center gap-2 text-slate-500 opacity-50">
+              <div className="size-6 rounded-full border border-slate-600 flex items-center justify-center text-xs font-bold">
+                <Store className="size-3.5" />
+              </div>
+              <span className="text-xs font-medium">¡Listo!</span>
+            </div>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { MapPin, Store, Sparkles } from 'lucide-react';
+import { MapPin, Store, Sparkles, Mic } from 'lucide-react';
 
 interface HomeProps {
   onNavigate: (view: 'register' | 'discover') => void;
@@ -6,78 +6,102 @@ interface HomeProps {
 
 export function Home({ onNavigate }: HomeProps) {
   return (
-    <div className="size-full flex flex-col items-center justify-center p-8">
-      <div className="max-w-4xl w-full space-y-12">
+    <div className="size-full flex flex-col items-center justify-center p-8 z-10 relative">
+      <div className="max-w-4xl w-full space-y-16">
         {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full text-slate-800 font-medium border border-slate-200">
-            <Sparkles className="size-5" />
-            Descubre Durango
+        <div className="text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 rounded-full text-slate-300 text-sm font-medium border border-white/10 backdrop-blur-sm shadow-sm">
+            <Sparkles className="size-4" />
+            Hackathon Durango 2026
           </div>
-          <h1 className="text-6xl font-bold text-slate-800">
-            Comercio Local Inteligente
+          <h1 className="text-5xl md:text-6xl font-extrabold text-white leading-tight tracking-tight">
+            Consume Local<br />Conectando el Barrio
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Conecta con los negocios tradicionales de Durango de forma rápida y sencilla
+          <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto font-light leading-relaxed">
+            Descubre los negocios tradicionales de Durango, apoya a los
+            comerciantes locales y haz crecer tu comunidad desde el barrio.
           </p>
         </div>
 
         {/* Cards */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
           {/* Discover Card */}
           <button
             onClick={() => onNavigate('discover')}
-            className="group relative overflow-hidden bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-slate-200"
+            className="group text-left relative overflow-hidden bg-white/5 backdrop-blur-md rounded-[2rem] p-8 transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 border border-white/10 hover:border-white/20"
           >
-            <div className="relative z-10 space-y-4">
-              <div className="size-16 bg-slate-700 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <MapPin className="size-8 text-white" />
+            <div className="relative z-10 space-y-6">
+              <div className="size-14 bg-white/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <MapPin className="size-6 text-white" />
               </div>
-              <h2 className="text-3xl font-bold text-slate-800">Descubrir</h2>
-              <p className="text-gray-600 text-lg">
-                Explora comercios locales, rutas turísticas y encuentra los mejores lugares de Durango
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium border border-slate-200">
+              <div className="space-y-3">
+                <h2 className="text-2xl font-bold text-white tracking-wide">Descubrir</h2>
+                <p className="text-slate-300 text-sm leading-relaxed font-light">
+                  Explora antojitos, mezcalerías, artesanías y más. Encuentra los mejores lugares cerca de ti.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 pt-2">
+                <span className="px-3 py-1 bg-white/5 text-slate-300 rounded-full text-[11px] font-medium border border-white/10">
                   Antojitos
                 </span>
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium border border-slate-200">
+                <span className="px-3 py-1 bg-white/5 text-slate-300 rounded-full text-[11px] font-medium border border-white/10">
                   Mezcal
                 </span>
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium border border-slate-200">
+                <span className="px-3 py-1 bg-white/5 text-slate-300 rounded-full text-[11px] font-medium border border-white/10">
                   Artesanías
                 </span>
               </div>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
 
           {/* Register Card */}
           <button
             onClick={() => onNavigate('register')}
-            className="group relative overflow-hidden bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-slate-200"
+            className="group text-left relative overflow-hidden bg-white/5 backdrop-blur-md rounded-[2rem] p-8 transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 border border-white/10 hover:border-white/20"
           >
-            <div className="relative z-10 space-y-4">
-              <div className="size-16 bg-slate-700 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Store className="size-8 text-white" />
+            <div className="relative z-10 space-y-6">
+              <div className="size-14 bg-white/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Store className="size-6 text-white" />
               </div>
-              <h2 className="text-3xl font-bold text-slate-800">Registrar Negocio</h2>
-              <p className="text-gray-600 text-lg">
-                Registra tu comercio en menos de 2 minutos usando tu voz. Sin formularios complicados.
-              </p>
-              <div className="flex items-center gap-2 text-slate-600 font-semibold">
-                <Sparkles className="size-5" />
-                <span>Powered by IA</span>
+              <div className="space-y-3">
+                <h2 className="text-2xl font-bold text-white tracking-wide">Registrar Negocio</h2>
+                <p className="text-slate-300 text-sm leading-relaxed font-light">
+                  Registra tu comercio en minutos con IA. Solo habla y nosotros nos encargamos del resto.
+                </p>
+              </div>
+              <div className="flex items-center gap-3 text-slate-300 text-[11px] font-medium pt-3">
+                <div className="flex items-center gap-1.5"><Mic className="size-3.5" /> Voz</div>
+                <span className="text-slate-500">•</span>
+                <div className="flex items-center gap-1.5"><Sparkles className="size-3.5" /> IA</div>
+                <span className="text-slate-500">•</span>
+                <div>&lt; 2 min</div>
               </div>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
         </div>
 
-        {/* Footer Info */}
-        <div className="text-center text-gray-500 text-sm">
-          <p>Plataforma desarrollada para el Hackathon Durango 2026</p>
+        {/* Footer Stats */}
+        <div className="space-y-8 pt-8">
+          <div className="flex justify-center items-center gap-16 text-center">
+            <div className="space-y-1">
+              <div className="text-3xl font-bold text-white">4+</div>
+              <div className="text-xs text-slate-400 font-medium tracking-wide">Negocios</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-3xl font-bold text-white">4</div>
+              <div className="text-xs text-slate-400 font-medium tracking-wide">Categorías</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-3xl font-bold text-white">1</div>
+              <div className="text-xs text-slate-400 font-medium tracking-wide">Comunidad</div>
+            </div>
+          </div>
+          
+          <div className="text-center text-[10px] text-slate-500 font-medium tracking-wider">
+            Hecho con ❤️ para Durango • Hackathon 2026
+          </div>
         </div>
+
       </div>
     </div>
   );

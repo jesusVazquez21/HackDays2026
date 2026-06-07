@@ -402,13 +402,13 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
       
       {/* API Key Configuration Banner */}
       {!import.meta.env.VITE_GEMINI_API_KEY && (
-        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-4 space-y-2 text-xs">
-          <div className="flex items-center gap-2 text-orange-800 font-semibold">
-            <Sparkles className="size-4 text-orange-600" />
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-4 space-y-2 text-xs text-slate-300">
+          <div className="flex items-center gap-2 text-white font-semibold">
+            <Sparkles className="size-4" />
             <span>Asistente de Registro con Gemini 2.5 Flash</span>
           </div>
-          <p className="text-gray-600">
-            Define la variable <code className="bg-white px-1 py-0.5 rounded font-mono text-purple-600">VITE_GEMINI_API_KEY</code> en tu archivo <code className="bg-white px-1 py-0.5 rounded font-mono">.env</code> para habilitar la conversación con IA de Gemini. También puedes ingresar una clave temporal para pruebas:
+          <p className="font-light">
+            Define la variable <code className="bg-white/10 px-1 py-0.5 rounded font-mono text-slate-200 border border-white/10">VITE_GEMINI_API_KEY</code> en tu archivo <code className="bg-white/10 px-1 py-0.5 rounded font-mono border border-white/10">.env</code> para habilitar la conversación con IA de Gemini. También puedes ingresar una clave temporal para pruebas:
           </p>
           <div className="flex gap-2">
             <input
@@ -419,7 +419,7 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
                 setTempGeminiKey(e.target.value);
                 sessionStorage.setItem('temp_gemini_api_key', e.target.value);
               }}
-              className="flex-1 text-xs px-3 py-1.5 border border-gray-300 rounded-xl outline-none focus:border-purple-600 text-gray-900 bg-white"
+              className="flex-1 text-xs px-3 py-1.5 border border-white/10 rounded-xl outline-none focus:border-white/30 text-white bg-white/5 placeholder-slate-500"
             />
             {tempGeminiKey && (
               <button
@@ -427,13 +427,13 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
                   setTempGeminiKey('');
                   sessionStorage.removeItem('temp_gemini_api_key');
                 }}
-                className="text-red-500 font-medium px-1"
+                className="text-red-400 font-medium px-1 hover:text-red-300 transition-colors"
               >
                 Limpiar
               </button>
             )}
           </div>
-          <div className="text-[10px] text-gray-400 italic">
+          <div className="text-[10px] text-slate-400 italic">
             {!activeGeminiKey && '⚠️ Ejecutando en Modo Simulación local por falta de API Key.'}
             {activeGeminiKey && '✅ Clave temporal configurada correctamente.'}
           </div>
@@ -450,18 +450,18 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
               animate={{ opacity: 1, y: 0 }}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`max-w-[85%] rounded-2xl px-5 py-3.5 shadow-sm ${
+              <div className={`max-w-[85%] rounded-3xl px-6 py-4 shadow-sm backdrop-blur-md ${
                 message.role === 'user'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-white border border-gray-100 text-gray-900'
+                  ? 'bg-white/10 text-white border border-white/10'
+                  : 'bg-white/5 border border-white/5 text-slate-200'
               }`}>
                 {message.role === 'assistant' && (
-                  <div className="flex items-center gap-1.5 mb-1.5 text-purple-600">
+                  <div className="flex items-center gap-1.5 mb-2 text-slate-300">
                     <Sparkles className="size-3.5" />
-                    <span className="text-xs font-semibold uppercase tracking-wider">Asistente Durango IA</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider">Asistente Durango</span>
                   </div>
                 )}
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap font-light">{message.content}</p>
               </div>
             </motion.div>
           ))}
@@ -473,14 +473,14 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
             animate={{ opacity: 1 }}
             className="flex justify-start"
           >
-            <div className="bg-white border border-gray-100 rounded-2xl px-5 py-3.5 shadow-sm">
+            <div className="bg-white/5 border border-white/5 rounded-3xl px-6 py-4 shadow-sm backdrop-blur-md">
               <div className="flex items-center gap-3">
-                <div className="flex gap-1">
-                  <div className="size-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="size-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="size-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="flex gap-1.5">
+                  <div className="size-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="size-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="size-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
-                <span className="text-xs text-gray-500">Procesando conversación...</span>
+                <span className="text-xs text-slate-400 font-medium">Procesando conversación...</span>
               </div>
             </div>
           </motion.div>
@@ -489,21 +489,24 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
       </div>
 
       {/* Floating progress and bypass */}
-      <div className="flex justify-between items-center px-2 py-1 mb-3 bg-purple-50 rounded-xl border border-purple-100/50">
-        <div className="text-xs text-purple-800">
-          <span className="font-semibold">Campos extraídos:</span>{' '}
-          {[
-            extractedData.nombre_negocio && 'Nombre',
-            extractedData.categoria_id && 'Categoría',
-            extractedData.direccion && 'Dirección',
-            extractedData.horario.apertura && 'Horario'
-          ].filter(Boolean).join(', ') || 'Ninguno aún'}
+      <div className="flex justify-between items-center px-4 py-3 mb-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+        <div className="text-[11px] text-slate-300 flex items-center gap-2">
+          <span className="font-semibold text-slate-400">
+            <Sparkles className="size-3.5 inline mr-1" />
+            {Object.values(extractedData).filter(v => v !== null && (typeof v !== 'object' || Object.values(v).some(x => x !== null))).length} de 4 campos
+          </span>
+          <div className="flex gap-4">
+            <span className={extractedData.nombre_negocio ? "text-white" : "text-slate-500"}>Nombre</span>
+            <span className={extractedData.categoria_id ? "text-white" : "text-slate-500"}>Tipo</span>
+            <span className={extractedData.direccion ? "text-white" : "text-slate-500"}>Dirección</span>
+            <span className={extractedData.horario.apertura ? "text-white" : "text-slate-500"}>Horario</span>
+          </div>
         </div>
         <button
           onClick={forceFinish}
-          className="text-xs font-medium text-purple-600 hover:text-purple-800 underline transition-colors"
+          className="text-[11px] font-medium text-slate-300 hover:text-white transition-colors"
         >
-          Confirmar con datos actuales ➔
+          Saltar ➔
         </button>
       </div>
 
@@ -515,21 +518,21 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-red-50 border border-red-100 rounded-2xl px-5 py-3.5 shadow-sm"
+              className="bg-white/5 backdrop-blur-md border border-white/20 rounded-3xl px-5 py-3.5 shadow-sm"
             >
               <div className="flex items-center gap-3">
                 <div className="relative size-3 flex items-center justify-center">
                   <div className="absolute size-3 bg-red-500 rounded-full animate-ping" />
-                  <div className="size-2 bg-red-600 rounded-full" />
+                  <div className="size-2 bg-red-500 rounded-full" />
                 </div>
-                <span className="text-red-800 text-xs font-medium">Grabando voz... Habla de tu negocio ahora.</span>
-                <Volume2 className="size-4 text-red-500 ml-auto animate-pulse" />
+                <span className="text-white text-xs font-medium">Grabando voz... Habla de tu negocio ahora.</span>
+                <Volume2 className="size-4 text-slate-400 ml-auto animate-pulse" />
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="bg-white rounded-3xl shadow-md border border-gray-200/80 p-2 flex items-end gap-2">
+        <div className="bg-white/10 rounded-3xl backdrop-blur-md border border-white/10 p-2 flex items-end gap-2 shadow-xl">
           <textarea
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
@@ -539,35 +542,35 @@ Analiza la conversación, extrae los datos nuevos y mantén o actualiza los dato
                 handleSendMessage();
               }
             }}
-            placeholder="Escribe o presiona el micrófono para hablar..."
-            className="flex-1 px-4 py-3 bg-transparent resize-none outline-none text-sm text-gray-800 placeholder-gray-400 max-h-32"
+            placeholder="Escribe o usa el micrófono..."
+            className="flex-1 px-4 py-3 bg-transparent resize-none outline-none text-sm text-white placeholder-slate-400 max-h-32"
             rows={1}
           />
 
           <button
             onClick={toggleRecording}
-            className={`size-12 rounded-full flex items-center justify-center transition-all ${
+            className={`size-10 rounded-full flex items-center justify-center transition-all mr-1 ${
               isRecording
-                ? 'bg-red-500 text-white hover:bg-red-600 shadow-md'
-                : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 shadow-md border border-red-500/30'
+                : 'bg-transparent text-slate-400 hover:text-white hover:bg-white/5'
             }`}
             title="Grabar por voz"
           >
-            {isRecording ? <MicOff className="size-5" /> : <Mic className="size-5" />}
+            {isRecording ? <MicOff className="size-4" /> : <Mic className="size-4" />}
           </button>
 
           <button
             onClick={handleSendMessage}
             disabled={!inputText.trim() || isProcessing}
-            className="size-12 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-200 text-white rounded-full flex items-center justify-center transition-all disabled:cursor-not-allowed shadow-md"
+            className="size-10 bg-white/5 hover:bg-white/10 disabled:bg-transparent text-slate-300 hover:text-white disabled:text-slate-600 rounded-full flex items-center justify-center transition-all disabled:cursor-not-allowed border border-transparent hover:border-white/10 disabled:border-transparent"
             title="Enviar mensaje"
           >
-            <Send className="size-5" />
+            <Send className="size-4" />
           </button>
         </div>
 
-        <p className="text-center text-xs text-gray-400">
-          Tip: Dile al asistente el nombre, tipo de negocio, dirección y horario de tu local comercial.
+        <p className="text-center text-[10px] text-slate-500 tracking-wide font-medium">
+          Di el nombre, tipo, dirección y horario de tu negocio
         </p>
       </div>
     </div>
